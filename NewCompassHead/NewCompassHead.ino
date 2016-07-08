@@ -24,7 +24,11 @@ unsigned int remote_port = 7000;      // Port to send to
 unsigned char high_byte, low_byte, angle8;
 char pitch, roll;
 unsigned int angle16;
-char cal = 0;
+char bearingCal = 0;
+char pitchCal = 0;
+char rollCal = 0;
+
+
 int SendStatus = 1;
 
 unsigned int Heading;
@@ -69,6 +73,7 @@ void setup() {
 void loop() {
   CompassRead();
   //Serial.println(remote_ip);
+  
   Udp.beginPacket(remote_ip, remote_port);
   Udp.print(Bearing);
   Udp.print(":");
@@ -76,7 +81,11 @@ void loop() {
   Udp.print(":");
   Udp.print(roll,DEC);
   Udp.print(":");
-  Udp.print(cal,DEC);
+  Udp.print(bearingCal,DEC);
+  Udp.print(":");
+  Udp.print(pitchCal,DEC);
+  Udp.print(":");
+  Udp.print(rollCal,DEC);
   Udp.print(":");
 
 
@@ -108,6 +117,7 @@ Serial.println(SendStatus);
   delay(1000);       /// this is blocking, use mili loop
 
 
+/*
 //------------------------------------------------------------
   EthernetClient client = server.available();
     if (client) {
@@ -142,7 +152,7 @@ Serial.println(SendStatus);
             client.print(roll, DEC);
             client.println("<br />");
             client.print("Cal: ");
-            client.print(cal, DEC);
+            client.print(bearingCal, DEC);
             client.println("<br />");   
             client.println("</html>");
             break;
@@ -163,10 +173,10 @@ Serial.println(SendStatus);
       Serial.println("client disconnected");
     }
   
-  }
 
 
-
+*/
+}
 
   
 
