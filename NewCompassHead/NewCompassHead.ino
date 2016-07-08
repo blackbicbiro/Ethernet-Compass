@@ -1,7 +1,9 @@
+#include <EEPROM.h>
 #include <Wire.h>
 #include <SPI.h>        
 #include <Ethernet.h>
 #include <EthernetUdp.h>
+
 
 #define CMPS11_ADDRESS 0x60 //compass modual address
 #define ANGLE_8  1           // Register to read 8bit angle from
@@ -198,21 +200,6 @@ void  GetValFromPacket(String DataString){
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /////////////////// read incoming packets //////////////////////////
 String ReadPacket(){
   int packetSize = Udp.parsePacket();
@@ -236,13 +223,6 @@ String ReadPacket(){
     return "NONE";                //Return None if no packets have been RX'd
   }
 }
-
-
-
-
-
-
-
 
 
 

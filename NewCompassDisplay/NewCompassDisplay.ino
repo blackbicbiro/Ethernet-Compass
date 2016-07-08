@@ -15,7 +15,6 @@ SoftwareSerial mySerial(3,2);    // pin 3 = RX  FOR LCD
 int BtnPlusYesSTATE = 0;
 int BtnMinusNoSTATE = 0;
 int BtnOkSTATE = 0;
-
 //pin 10  - ethernet sheild
 //pin 11  - ethernet sheild
 //pin 12  - ethernet sheild
@@ -45,7 +44,7 @@ long  LastRXPacket = 0;                // time last packet was RX'd
 long PacketTimeout = 3000;             // Time used before Error due to no packets from compass head unit
 String lastScreen = "";                //Used for checking what was last displayed on screen
 
-String RXData;
+String RXData;    // Saves RX data to be passed onto string spliting
 
 
 // Enter a MAC address and IP address for your controller below.
@@ -63,13 +62,14 @@ char ReplyBuffer[] = "acknowledged";       // a string to send back
 
 // An EthernetUDP instance to let us send and receive packets over UDP
 EthernetUDP Udp;
+///////////////////////// END /////////////////////////////////////////
 
 
 
 
 
 
-/////////////////////////////////////////////////////////////
+/////////////////////////////SETUP/////////////////////////////////////
 void setup() {
   // start the Ethernet and UDP:
   Ethernet.begin(mac, ip);
@@ -106,12 +106,12 @@ void setup() {
   delay(100);
 
 }
-//////////////////////////// END /////////////////////////////////
+//////////////////////////// END ///////////////////////////////////////
 
 
 
 
-/////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
 void loop() {
   // if there's data available, read a packet
   RXData = ReadPacket();    //Check to see if there is packet infomation. Pass back True/False
@@ -142,18 +142,14 @@ void loop() {
 
   delay(20); //allow time for packet to be received 20ms buffer
 }
-///////////////////////////////// END //////////////////////////////////////
+///////////////////////////////// END //////////////////////////////////
 
 
 
 
 
-//////////////////// Subs ///////////////////////////////
-
-
-
-
-/////////////Check Still RX packets/////////////////////
+//////////////////// SUBS /////////////////////////////////////////////
+/////////////Check Still RX packets////////////////////////////////////
 boolean CheckStatus(){
   if((millis() - LastRXPacket) < PacketTimeout){      //Check packets been RX'd before a timeout
     return true;
@@ -163,13 +159,14 @@ boolean CheckStatus(){
   }
 
 }
+///////////////////////// END /////////////////////////////////////////
 
 
 
 
 
 
-///////////////////split valaues from string from string/////////////////
+///////////////////split valaues from string from string////////////////
 void  GetValFromPacket(String DataString){
   if(DataString == "NONE"){                        // split string into each varible
   }
@@ -177,56 +174,36 @@ void  GetValFromPacket(String DataString){
     //Serial.println(packetBuffer);
     String TempString = DataString;
     int firstColon = TempString.indexOf(':');
-    //Serial.print("firstColon:");
-    //Serial.println(firstColon);
     bearing = TempString.substring(0,firstColon);
-    //Serial.print("bearing:");
-    //Serial.println(bearing);
     TempString = TempString.substring(firstColon+1, TempString.length());   //cut of bearing from string
-    //Serial.println(TempString);
     firstColon = TempString.indexOf(':');
-    //Serial.println(firstColon);
     tilt = TempString.substring(0,firstColon);
-    //Serial.print("tilt:");
-    //Serial.println(tilt);
     TempString = TempString.substring(firstColon+1, TempString.length());   //cut of tilt from string
-    //Serial.println(TempString);
     firstColon = TempString.indexOf(':');
-    //Serial.println(TempString);
     roll = TempString.substring(0,firstColon);
-    //Serial.print("roll:");
-    //Serial.println(roll);
     TempString = TempString.substring(firstColon+1, TempString.length());   //cut of roll from string
-    //Serial.println("should be cal only");
-    //Serial.println(TempString);
     firstColon = TempString.indexOf(':');
     bearingCalVal = TempString.substring(0,firstColon);
-    //Serial.println(firstColon);
-    //Serial.print("cal:");
-    //Serial.println(bearingCal);
     TempString = TempString.substring(firstColon+1, TempString.length());   //cut of roll from string
-    //Serial.println("should be cal only");
-    //Serial.println(TempString);
     firstColon = TempString.indexOf(':');
     tiltCalVal = TempString.substring(0,firstColon);
     TempString = TempString.substring(firstColon+1, TempString.length());   //cut of tiltCal from string
-    //Serial.println(TempString);
     firstColon = TempString.indexOf(':');
     rollCalVal = TempString.substring(0,firstColon);
     TempString = TempString.substring(firstColon+1, TempString.length());   //cut of tiltCal from string
     firstColon = TempString.indexOf(':');
-    //Serial.println(TempString);
     SendStatus = TempString;
 
   }
 }
+///////////////////////// END /////////////////////////////////////////
 
 
 
 
 
 
-////////////////////////// get and check packet infomation //////////////////////////////////////
+////////////////////////// get and check packet infomation ////////////
 String ReadPacket(){
   int packetSize = Udp.parsePacket();
   if (packetSize) {
@@ -248,24 +225,26 @@ String ReadPacket(){
     return "NONE";                //Return None if no packets have been RX'd
   }
 }
+///////////////////////// END /////////////////////////////////////////
 
 
 
 
 
 
-//////////////////////////////////////////packet buffer clear//////////////////////////////////
+//////////////////////////////////////////packet buffer clear//////////
 void ClearPacketBuffer(){
   for(int i=0;i<UDP_TX_PACKET_MAX_SIZE;i++) packetBuffer[i] = 0;  //clears UDP buffer stop stop random chars
 
 }
+///////////////////////// END /////////////////////////////////////////
 
 
 
 
 
 
-///////////////////// Print Error message to screen //////////////////////////////////////////
+///////////////////// Print Error message to screen ///////////////////
 void PrintErrorToScreen(){
   if(lastScreen != "PrintErrorToScreen"){
     ClearScreen();
@@ -276,30 +255,25 @@ void PrintErrorToScreen(){
     mySerial.write(192);
     mySerial.write("    No Data!    ");
   }
-
   lastScreen = "PrintErrorToScreen";  //set last screen so it only prints to screen once once
-
 }
+///////////////////////// END /////////////////////////////////////////
 
 
 
 
 
 
-///////////////////// Print Compass values to screen ////////////////////////////
+///////////////////// Print Compass values to screen ///////////////////
 void PrintValuesToScreen(){
-  //check to see if this is the first time this is being called apon. if so clear screen and display headers
-  if(lastScreen != "PrintValuesToScreen"){
+  if(lastScreen != "PrintValuesToScreen"){          //check to see if this is the first time this is being called apon. if so clear screen and display headers
     ClearScreen();
-
     mySerial.write(254); // move cursor to beginning of first line
     mySerial.write(128);
     mySerial.write("Bearing = ");
-
     mySerial.write(254); // move cursor to beginning of first line
     mySerial.write(192);
     mySerial.write("T=");
-
     mySerial.write(254); // move cursor to beginning of first line
     mySerial.write(199);
     mySerial.write("R=");
@@ -318,10 +292,8 @@ void PrintValuesToScreen(){
     mySerial.write(201);
     mySerial.print(roll);
     mySerial.print((char)223);
-
+    lastScreen = "PrintValuesToScreen";            //set last screen so it only prints the titles to screen once once
   }
-  lastScreen = "PrintValuesToScreen";            //set last screen so it only prints the titles to screen once once
-
 
   //Update screen with no compass infomation
   if(Oldbearing != bearing){
@@ -335,7 +307,6 @@ void PrintValuesToScreen(){
   }
 
   if(Oldtilt != tilt){
-
     mySerial.write(254); // move cursor to beginning of first line
     mySerial.write(194);
     mySerial.write("    ");
@@ -344,6 +315,7 @@ void PrintValuesToScreen(){
     mySerial.print(tilt);
     mySerial.print((char)223);
   }
+
   if(Oldroll != roll){
     mySerial.write(254); // move cursor to beginning of first line
     mySerial.write(201);
@@ -353,47 +325,53 @@ void PrintValuesToScreen(){
     mySerial.print(roll);
     mySerial.print((char)223);
   }
+
   if(OldSendStatus != SendStatus){
     mySerial.write(254); // move cursor to beginning of first line
     mySerial.write(207);
     mySerial.print(SendStatus);
   }
 
-  //Update old compas varbiles with latest values
+  //Update old compass varbiles with latest values so values only print to screen if they change
   Oldbearing = bearing;
   Oldtilt = tilt;
   Oldroll = roll;
   OldBearingCal = bearingCalVal;
 }
+///////////////////////// END /////////////////////////////////////////
 
 
 
 
 
 
-//////////////////// clear screen ////////////////////////////////
+
+
+//////////////////// clear screen ////////////////////////////////////
 void ClearScreen(){
   mySerial.write(254); // move cursor to beginning of first line
   mySerial.write(128);
   mySerial.print("                ");
   mySerial.print("                ");
 }
+///////////////////////// END /////////////////////////////////////////
 
 
 
 
 
-////////////////////// Menu Pressed ///////////////////////////////
+
+////////////////////// Menu Pressed ///////////////////////////////////
 void CheckMenuPressed(){
-  if(BtnOkSTATE == LOW){
+  if(BtnOkSTATE == LOW){      //check for button to be pressed and released before changing value
     while(true){
       ButtonCheckUpdate();    // Check state of buttons and save value
       if(BtnOkSTATE == HIGH){
         break;
       }
     }
-    int Menuloop = true;
-    int MenuSelect = 1;
+    int Menuloop = true;      // Menu will exits when false
+    int MenuSelect = 1;       // Menu currently selected
     ClearScreen();
     while(Menuloop == true){
       //Dispay and select menu;
@@ -441,8 +419,7 @@ void CheckMenuPressed(){
       } 
 
 
-
-      // check for plus button being pressed once
+      // check for +/- button being pressed once
       ButtonCheckUpdate();    // Check state of buttons and save value
       if(BtnPlusYesSTATE == LOW){
         while(true){
@@ -451,15 +428,12 @@ void CheckMenuPressed(){
             break;
           }
         }
-
         MenuSelect = ++MenuSelect;
         if(MenuSelect > 4){
           MenuSelect = 1;
         }
       }
 
-
-      // check for minus button being pressed once
       if(BtnMinusNoSTATE == LOW){
         while(true){
           ButtonCheckUpdate();    // Check state of buttons and save value
@@ -485,29 +459,23 @@ void CheckMenuPressed(){
         case 1:
           BearingCal();
           break; 
-
         case 2:
           tiltCal();
           break;
-
         case 3:
           rollCal();
           break;
-
         case 4:
           Menuloop = false;
           ClearScreen();
           ClearPacketBuffer();
           break;   
-        }
+        } // end of switch
       }
-
-
-    }  // end while loop        
-  }//end if loop
-  //ClearPacketBuffer();
-
+    }       
+  }
 }
+///////////////////////// END /////////////////////////////////////////
 
 
 
@@ -515,7 +483,7 @@ void CheckMenuPressed(){
 
 
 
-//////////////// calibrate bearing and send update to head //////////////////////////
+//////////////// calibrate bearing and send update to head /////////////
 void BearingCal(){
   String oldbearingCalVal = "0";
   String oldBearingVal = "0";
@@ -536,7 +504,6 @@ void BearingCal(){
       mySerial.write(254); // move cursor to beginning of first line
       mySerial.write(198);
       mySerial.print(bearingCalVal);  
-
     }// end of if loop
 
     //Update screen with new RX cal val
@@ -549,7 +516,6 @@ void BearingCal(){
       mySerial.print(bearingCalVal);
       oldbearingCalVal = bearingCalVal;
     }
-    //Update screen with new RX cal val
     if(bearing != oldBearingVal){
       mySerial.write(254); // move cursor to beginning of first line
       mySerial.write(138);
@@ -561,15 +527,13 @@ void BearingCal(){
     }
 
 
-
-    //Button press detection
+    //Button +/- press detection
     if(BtnPlusYesSTATE == LOW){
       while(true){
         ButtonCheckUpdate();    // Check state of buttons and save value
         if(BtnPlusYesSTATE == HIGH){
           SendCompassVals( "b", "+");
           break;
-
         }
       }
     }
@@ -580,14 +544,12 @@ void BearingCal(){
         if(BtnMinusNoSTATE == HIGH){
           SendCompassVals( "b", "-");
           break;
-
         }
       }
     }
 
-
+    // exit back to menu if ok pressed
     if(BtnOkSTATE == LOW){                // exit cal adjust
-
       while(true){
         ButtonCheckUpdate();    // Check state of buttons and save value
         if(BtnOkSTATE == HIGH){
@@ -596,17 +558,18 @@ void BearingCal(){
       }//end if while;
       break;  
     }
-
-
-
-  }//end of while loop
+  }
 }
+///////////////////////// END /////////////////////////////////////////
 
 
 
 
 
-//////////////// calibrate tilt and send update to head //////////////////////////
+
+
+
+//////////////// calibrate tilt and send update to head ////////////////
 void tiltCal(){
   String oldTiltCalVal = "0";
   String oldTiltVal = "0";
@@ -627,7 +590,6 @@ void tiltCal(){
       mySerial.write(254); // move cursor to beginning of first line
       mySerial.write(198);
       mySerial.print(tiltCalVal);  
-
     }// end of if loop
 
     //Update screen with new RX cal val
@@ -640,7 +602,6 @@ void tiltCal(){
       mySerial.print(tiltCalVal);
       oldTiltCalVal = tiltCalVal;
     }
-    //Update screen with new RX cal val
     if(tilt != oldTiltVal){
       mySerial.write(254); // move cursor to beginning of first line
       mySerial.write(135);
@@ -652,33 +613,28 @@ void tiltCal(){
     }
 
 
-
-    //Button press detection
+    //Button +/- press detection
     if(BtnPlusYesSTATE == LOW){
       while(true){
         ButtonCheckUpdate();    // Check state of buttons and save value
         if(BtnPlusYesSTATE == HIGH){
           SendCompassVals( "t", "+");
           break;
-
         }
       }
     }
-
     if(BtnMinusNoSTATE == LOW){
       while(true){
         ButtonCheckUpdate();    // Check state of buttons and save value
         if(BtnMinusNoSTATE == HIGH){
           SendCompassVals( "t", "-");
           break;
-
         }
       }
     }
 
-
+    //Exit to menu if OK pressed
     if(BtnOkSTATE == LOW){                // exit cal adjust
-
       while(true){
         ButtonCheckUpdate();    // Check state of buttons and save value
         if(BtnOkSTATE == HIGH){
@@ -687,18 +643,18 @@ void tiltCal(){
       }//end if while;
       break;  
     }
-
-
-
-  }//end of while loop
+  }
 }
+///////////////////////// END /////////////////////////////////////////
 
 
 
 
 
 
-//////////////// calibrate Roll and send update to head //////////////////////////
+
+
+//////////////// calibrate Roll and send update to head ////////////////
 void rollCal(){
   String oldrollCalVal = "0";
   String oldrollVal = "0";
@@ -719,7 +675,6 @@ void rollCal(){
       mySerial.write(254); // move cursor to beginning of first line
       mySerial.write(198);
       mySerial.print(rollCalVal);  
-
     }// end of if loop
 
     //Update screen with new RX cal val
@@ -744,33 +699,28 @@ void rollCal(){
     }
 
 
-
-    //Button press detection
+    //Button +/- press detection
     if(BtnPlusYesSTATE == LOW){
       while(true){
         ButtonCheckUpdate();    // Check state of buttons and save value
         if(BtnPlusYesSTATE == HIGH){
           SendCompassVals( "r", "+");
           break;
-
         }
       }
     }
-
     if(BtnMinusNoSTATE == LOW){
       while(true){
         ButtonCheckUpdate();    // Check state of buttons and save value
         if(BtnMinusNoSTATE == HIGH){
           SendCompassVals( "r", "-");
           break;
-
         }
       }
     }
 
-
+  // exit back to menu
     if(BtnOkSTATE == LOW){                // exit cal adjust
-
       while(true){
         ButtonCheckUpdate();    // Check state of buttons and save value
         if(BtnOkSTATE == HIGH){
@@ -779,11 +729,9 @@ void rollCal(){
       }//end if while;
       break;  
     }
-
-
-
-  }//end of while loop
+  }
 }
+///////////////////////// END /////////////////////////////////////////
 
 
 
@@ -791,7 +739,7 @@ void rollCal(){
 
 
 
-////////////////////// Check and update button state ////////////////////////
+////////////////////// Check and update button state ///////////////////
 void ButtonCheckUpdate(){
   debouncer1.update();
   debouncer2.update();
@@ -799,36 +747,24 @@ void ButtonCheckUpdate(){
   BtnPlusYesSTATE = debouncer1.read();
   BtnMinusNoSTATE = debouncer2.read();
   BtnOkSTATE = debouncer3.read();
-
 }
+///////////////////////// END /////////////////////////////////////////
 
 
 
 
 
-////////////// Send new Cal Val //////////////////////
+
+
+////////////// Send new Cal Val ///////////////////////////////////////
 void SendCompassVals(String Type, String Adjustment){
   Udp.beginPacket(remote_ip, remote_port);
   Udp.print(Type);
   Udp.print(":");
   Udp.print(Adjustment);
-  //Serial.println("status:");
-  //Serial.println(SendStatus);
   Udp.endPacket();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
+///////////////////////// END /////////////////////////////////////////
 
 
 
