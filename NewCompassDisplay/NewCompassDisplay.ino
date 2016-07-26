@@ -1,10 +1,10 @@
 
 #include <SoftwareSerial.h>
-#include <SPI.h>         // needed for Arduino versions later than 0018
+#include <SPI.h>           // needed for Arduino versions later than 0018
 #include <Ethernet.h>
-#include <EthernetUdp.h>         // UDP library from: bjoern@cs.stanford.edu 12/30/2008
+#include <EthernetUdp.h>   // UDP library from: bjoern@cs.stanford.edu 12/30/2008
 #include <Bounce2.h>
-#define DEBOUNCE 50  // button debouncer, how many ms to debounce, 5+ ms is usually plenty
+#define DEBOUNCE 50        // button debouncer, how many ms to debounce, 5+ ms is usually plenty
 
 
 //pins
@@ -28,18 +28,18 @@ Bounce debouncer2 = Bounce();   //BtnMinusNo
 Bounce debouncer3 = Bounce();   //BtnOK
 
 // compass varible
-String bearing = 0;          
-String tilt  =  0;
-String roll  =  0;
+String bearing = "0";          
+String tilt  =  "0";
+String roll  =  "0";
 String bearingCalVal = "0";
 String tiltCalVal  =  "0";
 String rollCalVal  =  "0";
-String SendStatus = 0;
-String Oldbearing = 0;
-String Oldtilt  =  0;
-String Oldroll  =  0;
-String OldBearingCal = 0;
-String OldSendStatus = 0;
+String SendStatus = "0";
+String Oldbearing = "0";
+String Oldtilt  =  "0";
+String Oldroll  =  "0";
+String OldBearingCal = "0";
+String OldSendStatus = "0";
 long  LastRXPacket = 0;                // time last packet was RX'd
 long PacketTimeout = 3000;             // Time used before Error due to no packets from compass head unit
 String lastScreen = "";                //Used for checking what was last displayed on screen
@@ -47,21 +47,25 @@ String lastScreen = "";                //Used for checking what was last display
 String RXData;    // Saves RX data to be passed onto string spliting
 
 
+
 // Enter a MAC address and IP address for your controller below.
 // The IP address will be dependent on your local network:
 byte mac[] = { 
-  0x90, 0xA2, 0xDA, 0x0D, 0xA0, 0x60};  // arduino ethernet sheild mac (found on sticker)
-IPAddress ip(172, 25, 40, 52);                       // local ip address for arduino
-IPAddress remote_ip(172, 25, 40, 50);  // Address of target machine
+  0x90, 0xA2, 0xDA, 0x0D, 0xA0, 0x60};         // arduino ethernet sheild mac (found on sticker)
+IPAddress ip(172, 25, 40, 52);                 // local ip address for arduino
+
+
+IPAddress remote_ip(172, 25, 40, 50);          // Address of target machine
 unsigned int localPort = 7000;                       // local port to listen on
-unsigned int remote_port = 7000;      // Port to send to
+unsigned int remote_port = 7000;               // Port to send to
 
 // buffers for receiving and sending data
-char packetBuffer[UDP_TX_PACKET_MAX_SIZE];  //buffer to hold incoming packet,
-char ReplyBuffer[] = "acknowledged";       // a string to send back
+char packetBuffer[UDP_TX_PACKET_MAX_SIZE];     //buffer to hold incoming packet,
+char ReplyBuffer[] = "acknowledged";           // a string to send back
 
-// An EthernetUDP instance to let us send and receive packets over UDP
-EthernetUDP Udp;
+EthernetUDP Udp;                               // An EthernetUDP instance to let us send and receive packets over UDP
+
+
 ///////////////////////// END /////////////////////////////////////////
 
 
@@ -91,19 +95,17 @@ void setup() {
   debouncer3.attach(BtnOk);
   debouncer3.interval(DEBOUNCE); // interval in ms
 
+  delay(1000);      //allow screen to settle down
 
 
   //Start up display message
-  mySerial.write(254); // move cursor to beginning of first line
-  mySerial.write(128);
-  mySerial.write("                "); // clear display
-  mySerial.write("                ");
+  ClearScreen();
   mySerial.write(254); // move cursor to beginning of first line
   mySerial.write(128);
   mySerial.write("Compass Unit");
   delay(1000);
   ClearScreen();
-  delay(100);
+
 
 }
 //////////////////////////// END ///////////////////////////////////////
@@ -353,6 +355,7 @@ void ClearScreen(){
   mySerial.write(128);
   mySerial.print("                ");
   mySerial.print("                ");
+  delay(10);
 }
 ///////////////////////// END /////////////////////////////////////////
 
@@ -719,7 +722,7 @@ void rollCal(){
       }
     }
 
-  // exit back to menu
+    // exit back to menu
     if(BtnOkSTATE == LOW){                // exit cal adjust
       while(true){
         ButtonCheckUpdate();    // Check state of buttons and save value
@@ -765,6 +768,7 @@ void SendCompassVals(String Type, String Adjustment){
   Udp.endPacket();
 }
 ///////////////////////// END /////////////////////////////////////////
+
 
 
 

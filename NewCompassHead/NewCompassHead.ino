@@ -40,17 +40,12 @@ unsigned int angle16;
 int bearingCalVal = 0;
 int tiltCalVal = 0;
 int rollCalVal = 0;
-int oldBearingCalVal = 0;
-int oldTiltCalVal = 0;
-int oldRollCalVal = 0;
 
 int TiltMemPos = 10;
 int RollMemPos = 20;
 int BearingMemPos = 30;
 
 int FirstWrite = 0;
-
-
 
 //for delaying the UDP packets without blocking
 long LastMillis = millis();
